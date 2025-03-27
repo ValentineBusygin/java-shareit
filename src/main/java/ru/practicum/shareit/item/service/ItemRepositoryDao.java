@@ -5,7 +5,7 @@ import ru.practicum.shareit.item.model.Item;
 import java.util.List;
 import java.util.Optional;
 
-public interface ItemServiceDao {
+public interface ItemRepositoryDao {
     Item add(Item item);
 
     Item update(Item item);

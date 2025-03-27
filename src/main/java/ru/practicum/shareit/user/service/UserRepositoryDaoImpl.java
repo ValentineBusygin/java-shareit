@@ -1,7 +1,6 @@
 package ru.practicum.shareit.user.service;
 
 import lombok.RequiredArgsConstructor;
-import org.springframework.context.annotation.Primary;
 import org.springframework.stereotype.Repository;
 import ru.practicum.shareit.exceptions.EmailAlreadyExistsException;
 import ru.practicum.shareit.exceptions.NotFoundException;
@@ -10,9 +9,8 @@ import ru.practicum.shareit.user.User;
 import java.util.*;
 
 @Repository
-@Primary
 @RequiredArgsConstructor
-public class UserServiceDaoImpl implements UserServiceDao {
+public class UserRepositoryDaoImpl implements UserRepositoryDao {
     private final Map<Long, User> users = new HashMap<>();
     private final Set<String> emails = new HashSet<>();
     private Long counter = 1L;
@@ -34,6 +32,7 @@ public class UserServiceDaoImpl implements UserServiceDao {
         if (!user.getEmail().equals(oldUser.getEmail())) {
             checkEmail(user.getEmail());
             emails.remove(oldUser.getEmail());
+            emails.add(user.getEmail());
         }
         users.put(user.getId(), user);
 

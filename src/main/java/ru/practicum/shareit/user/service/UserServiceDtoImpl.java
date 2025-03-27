@@ -1,7 +1,6 @@
 package ru.practicum.shareit.user.service;
 
 import lombok.RequiredArgsConstructor;
-import org.springframework.context.annotation.Primary;
 import org.springframework.stereotype.Service;
 import ru.practicum.shareit.user.User;
 import ru.practicum.shareit.user.UserDto;
@@ -10,20 +9,19 @@ import ru.practicum.shareit.user.UserMapper;
 import java.util.List;
 
 @Service
-@Primary
 @RequiredArgsConstructor
 public class UserServiceDtoImpl implements UserServiceDto {
-    private final UserServiceDao userServiceDao;
+    private final UserRepositoryDao userRepositoryDao;
 
     @Override
     public UserDto add(UserDto userDto) {
-        return UserMapper.toUserDto(userServiceDao.add(UserMapper.toUser(userDto)));
+        return UserMapper.toUserDto(userRepositoryDao.add(UserMapper.toUser(userDto)));
     }
 
     @Override
     public UserDto update(Long id, UserDto userDto) {
         User updatingUser = UserMapper.toUser(userDto);
-        User existingUser = userServiceDao.findById(id);
+        User existingUser = userRepositoryDao.findById(id);
 
         User updatedUser = new User();
 
@@ -41,21 +39,21 @@ public class UserServiceDtoImpl implements UserServiceDto {
             updatedUser.setName(existingUser.getName());
         }
 
-        return UserMapper.toUserDto(userServiceDao.update(updatedUser));
+        return UserMapper.toUserDto(userRepositoryDao.update(updatedUser));
     }
 
     @Override
     public UserDto findById(Long id) {
-        return UserMapper.toUserDto(userServiceDao.findById(id));
+        return UserMapper.toUserDto(userRepositoryDao.findById(id));
     }
 
     @Override
     public List<UserDto> findAll() {
-        return userServiceDao.findAll().stream().map(UserMapper::toUserDto).toList();
+        return userRepositoryDao.findAll().stream().map(UserMapper::toUserDto).toList();
     }
 
     @Override
     public void delete(Long id) {
-        userServiceDao.delete(id);
+        userRepositoryDao.delete(id);
     }
 }

@@ -1,17 +1,16 @@
 package ru.practicum.shareit.item.service;
 
 import lombok.RequiredArgsConstructor;
-import org.springframework.context.annotation.Primary;
 import org.springframework.stereotype.Repository;
 import ru.practicum.shareit.item.model.Item;
 
 import java.util.*;
 
 @Repository
-@Primary
 @RequiredArgsConstructor
-public class ItemServiceDaoImpl implements ItemServiceDao {
+public class ItemRepositoryDaoImpl implements ItemRepositoryDao {
 
+    private final Map<Long, Item> itemsById = new HashMap<>();
     private final Map<Long, List<Item>> itemsByOwner = new HashMap<>();
     private long counter = 1L;
 
@@ -27,26 +26,25 @@ public class ItemServiceDaoImpl implements ItemServiceDao {
             itemsByOwner.get(item.getOwnerId()).add(item);
         }
 
+        itemsById.put(item.getId(), item);
+
         return item;
     }
 
     @Override
     public Item update(Item item) {
+        itemsById.put(item.getId(), item);
+
         List<Item> items = itemsByOwner.get(item.getOwnerId());
-        List<Item> toRemove = items.stream()
-                .filter(i -> i.getId().equals(item.getId()))
-                .toList();
-        items.removeAll(toRemove);
+        items.removeIf(i -> i.getId().equals(item.getId()));
         items.add(item);
+
         return item;
     }
 
     @Override
     public Optional<Item> findById(Long itemId) {
-        return itemsByOwner.values().stream()
-                .flatMap(Collection::stream)
-                .filter(i -> i.getId().equals(itemId))
-                .findFirst();
+        return Optional.ofNullable(itemsById.get(itemId));
     }
 
     @Override
@@ -56,8 +54,7 @@ public class ItemServiceDaoImpl implements ItemServiceDao {
 
     @Override
     public List<Item> search(String text) {
-        return itemsByOwner.values().stream()
-                .flatMap(Collection::stream)
+        return itemsById.values().stream()
                 .filter(Item::getAvailable)
                 .filter(i -> i.getName().toLowerCase().contains(text.toLowerCase())
                         || i.getDescription().toLowerCase().contains(text.toLowerCase()))
