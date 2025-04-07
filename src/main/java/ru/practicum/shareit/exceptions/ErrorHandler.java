@@ -19,10 +19,18 @@ public class ErrorHandler {
         return new ErrorResponse(e.getMessage());
     }
 
-    @ExceptionHandler({MethodArgumentNotValidException.class})
+    @ExceptionHandler({MethodArgumentNotValidException.class, ValidationException.class})
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     public ErrorResponse handleValidationException(final Exception e) {
         log.warn("Ошибка валидации объекта: {}", e.getMessage());
+
+        return new ErrorResponse(e.getMessage());
+    }
+
+    @ExceptionHandler({NotOwnerException.class})
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    public ErrorResponse handleNotOwnerException(final Exception e) {
+        log.warn("Ошибка доступа к объекту: {}", e.getMessage());
 
         return new ErrorResponse(e.getMessage());
     }
