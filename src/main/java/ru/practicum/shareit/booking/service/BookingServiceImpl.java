@@ -2,6 +2,7 @@ package ru.practicum.shareit.booking.service;
 
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import ru.practicum.shareit.booking.BookingMapper;
 import ru.practicum.shareit.booking.dto.BookingInDto;
 import ru.practicum.shareit.booking.dto.BookingOutDto;
@@ -32,6 +33,7 @@ public class BookingServiceImpl implements BookingService {
     private static final String BOOKING_NOT_FOUND = "Бронирование с id %d не найдено";
 
     @Override
+    @Transactional(rollbackFor = NotFoundException.class)
     public BookingOutDto create(BookingInDto bookingInDto, Long userId) {
         Item item = itemRepository.findById(bookingInDto.getItemId()).orElseThrow(
                 () -> new NotFoundException(String.format(ITEM_NOT_FOUND, bookingInDto.getItemId())));
@@ -55,6 +57,7 @@ public class BookingServiceImpl implements BookingService {
     }
 
     @Override
+    @Transactional(rollbackFor = {NotFoundException.class, NotOwnerException.class})
     public BookingOutDto update(Long userId, Long bookingId, boolean approved) {
         userRepository.findById(userId).orElseThrow(
                 () -> new NotOwnerException(String.format(USER_NOT_FOUND, userId)));
@@ -74,6 +77,7 @@ public class BookingServiceImpl implements BookingService {
     }
 
     @Override
+    @Transactional(readOnly = true)
     public BookingOutDto getById(Long userId, Long bookingId) {
         userRepository.findById(userId).orElseThrow(
                 () -> new NotFoundException(String.format(USER_NOT_FOUND, userId)));
@@ -90,6 +94,7 @@ public class BookingServiceImpl implements BookingService {
     }
 
     @Override
+    @Transactional(readOnly = true)
     public List<BookingOutDto> getAll0fUserByState(Long userId, BookingState state) {
         userRepository.findById(userId).orElseThrow(
                 () -> new NotFoundException(String.format(USER_NOT_FOUND, userId)));
@@ -111,6 +116,7 @@ public class BookingServiceImpl implements BookingService {
     }
 
     @Override
+    @Transactional(readOnly = true)
     public List<BookingOutDto> getAll0fOwnerByState(Long userId, BookingState state) {
         userRepository.findById(userId).orElseThrow(
                 () -> new NotFoundException(String.format(USER_NOT_FOUND, userId)));

@@ -11,7 +11,7 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 @RestControllerAdvice
 public class ErrorHandler {
 
-    @ExceptionHandler({NotFoundException.class})
+    @ExceptionHandler
     @ResponseStatus(HttpStatus.NOT_FOUND)
     public ErrorResponse handleNotFoundException(final NotFoundException e) {
         log.warn("Объект не найден: {}", e.getMessage());
@@ -27,17 +27,17 @@ public class ErrorHandler {
         return new ErrorResponse(e.getMessage());
     }
 
-    @ExceptionHandler({NotOwnerException.class})
+    @ExceptionHandler
     @ResponseStatus(HttpStatus.BAD_REQUEST)
-    public ErrorResponse handleNotOwnerException(final Exception e) {
+    public ErrorResponse handleNotOwnerException(final NotOwnerException e) {
         log.warn("Ошибка доступа к объекту: {}", e.getMessage());
 
         return new ErrorResponse(e.getMessage());
     }
 
-    @ExceptionHandler({EmailAlreadyExistsException.class})
+    @ExceptionHandler
     @ResponseStatus(HttpStatus.CONFLICT)
-    public ErrorResponse handleEmailAlreadyExistsException(final Exception e) {
+    public ErrorResponse handleEmailAlreadyExistsException(final EmailAlreadyExistsException e) {
         log.warn("Ошибка с дублированием email'а пользователя: {}", e.getMessage());
 
         return new ErrorResponse(e.getMessage());

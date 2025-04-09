@@ -30,7 +30,7 @@ CREATE TABLE IF NOT EXISTS bookings (
     item_id BIGINT REFERENCES items (id),
     booker_id BIGINT REFERENCES users (id),
     status VARCHAR(255) NOT NULL,
-    CONSTRAINT pk_booking PRIMARY KEY (id, item_id, booker_id, status)
+    CONSTRAINT pk_booking PRIMARY KEY (id)
 );
 
 CREATE TABLE IF NOT EXISTS comments (

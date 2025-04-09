@@ -2,6 +2,7 @@ package ru.practicum.shareit.item.service;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import ru.practicum.shareit.booking.BookingMapper;
 import ru.practicum.shareit.booking.model.Booking;
 import ru.practicum.shareit.booking.service.BookingRepository;
@@ -31,6 +32,7 @@ public class ItemServiceImpl implements ItemService {
     private static final String USER_NOT_FOUND = "Пользователь с id %d не найден";
 
     @Override
+    @Transactional(rollbackFor = NotFoundException.class)
     public ItemDto add(Long ownerId, ItemDto itemDto) {
         User owner = userRepository.findById(ownerId).orElseThrow(() ->
                 new NotFoundException(String.format(USER_NOT_FOUND, ownerId)));
@@ -43,6 +45,7 @@ public class ItemServiceImpl implements ItemService {
     }
 
     @Override
+    @Transactional(rollbackFor = {NotFoundException.class, NotOwnerException.class})
     public ItemDto update(Long ownerId, Long itemId, ItemDto itemDto) {
         User owner = userRepository.findById(ownerId).orElseThrow(() ->
                 new NotFoundException(String.format(USER_NOT_FOUND, ownerId)));
@@ -77,6 +80,7 @@ public class ItemServiceImpl implements ItemService {
     }
 
     @Override
+    @Transactional(readOnly = true)
     public ItemDto findById(Long userId, Long itemId) {
         userRepository.findById(userId).orElseThrow(() ->
                 new NotFoundException(String.format(USER_NOT_FOUND, userId)));
@@ -85,11 +89,13 @@ public class ItemServiceImpl implements ItemService {
                 new NotFoundException(
                         String.format("Вещь с id = %d не найдена у пользователя с id = %d", itemId, userId)));
 
-        List<Booking> bookings = bookingRepository.findByItemOwnerId(item.getOwner().getId());
-
         ItemDto itemDto = ItemMapper.toItemDto(item);
 
-        setLastAndNextBooking(itemDto, bookings);
+        if (item.getOwner().getId().equals(userId)) {
+            List<Booking> bookings = bookingRepository.findByItemOwnerId(item.getOwner().getId());
+
+            setLastAndNextBooking(itemDto, bookings);
+        }
 
         List<Comment> comments = commentRepository.findAllByItemIdOrderByCreatedDesc(item.getId());
         itemDto.setComments(comments.stream().map(CommentMapper::toCommentDto).toList());
@@ -98,6 +104,7 @@ public class ItemServiceImpl implements ItemService {
     }
 
     @Override
+    @Transactional(readOnly = true)
     public List<ItemDto> findAll(Long userId) {
         userRepository.findById(userId).orElseThrow(() ->
                 new NotFoundException(String.format(USER_NOT_FOUND, userId)));
@@ -106,11 +113,13 @@ public class ItemServiceImpl implements ItemService {
 
         return items.stream()
                 .map(item -> {
-                    List<Booking> bookings = bookingRepository.findByItemOwnerId(item.getOwner().getId());
-
                     ItemDto itemDto = ItemMapper.toItemDto(item);
 
-                    setLastAndNextBooking(itemDto, bookings);
+                    if (item.getOwner().getId().equals(userId)) {
+                        List<Booking> bookings = bookingRepository.findByItemOwnerId(item.getOwner().getId());
+
+                        setLastAndNextBooking(itemDto, bookings);
+                    }
 
                     List<Comment> comments = commentRepository.findAllByItemIdOrderByCreatedDesc(item.getId());
                     itemDto.setComments(comments.stream().map(CommentMapper::toCommentDto).toList());
@@ -121,6 +130,7 @@ public class ItemServiceImpl implements ItemService {
     }
 
     @Override
+    @Transactional(readOnly = true)
     public List<ItemDto> search(Long userId, String text) {
         userRepository.findById(userId).orElseThrow(() ->
                 new NotFoundException(String.format(USER_NOT_FOUND, userId)));
@@ -134,6 +144,7 @@ public class ItemServiceImpl implements ItemService {
     }
 
     @Override
+    @Transactional(rollbackFor = {NotFoundException.class, NotOwnerException.class})
     public CommentDto addComment(Long userId, Long itemId, CommentDto commentDto) {
         User author = userRepository.findById(userId).orElseThrow(() ->
                 new NotFoundException(String.format(USER_NOT_FOUND, userId)));
@@ -159,10 +170,9 @@ public class ItemServiceImpl implements ItemService {
     }
 
     private void setLastAndNextBooking(ItemDto item, List<Booking> bookings) {
-        //Последнее бронирование по ТЗ не соответствует тестам: в тесте ожидается выборка активного бронирования
-        // Пока что просто закомментировал условие, которое вытаскивает прошедшие бронивания
+        //Последнее бронирование может быть как завершённым, так и активным
         Booking lastBooking = bookings.stream()
-                .filter(booking -> /*booking.getEnd().isBefore(LocalDateTime.now()) ||*/
+                .filter(booking -> booking.getEnd().isBefore(LocalDateTime.now()) ||
                         (booking.getStart().isBefore(LocalDateTime.now()) && booking.getEnd().isAfter(LocalDateTime.now())))
                 .max(Comparator.comparing(Booking::getEnd))
                 .orElse(null);

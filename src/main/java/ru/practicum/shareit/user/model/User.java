@@ -1,7 +1,6 @@
 package ru.practicum.shareit.user.model;
 
 import jakarta.persistence.*;
-import jakarta.validation.constraints.Email;
 import lombok.*;
 
 @Entity
@@ -19,7 +18,6 @@ public class User {
     @Column(nullable = false)
     private String name;
 
-    @Email(message = "Формат email некорректен")
     @Column(nullable = false, unique = true)
     private String email;
 }
