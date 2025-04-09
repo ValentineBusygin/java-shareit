@@ -4,8 +4,9 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.*;
+import ru.practicum.shareit.item.dto.CommentDto;
 import ru.practicum.shareit.item.dto.ItemDto;
-import ru.practicum.shareit.item.service.ItemServiceDto;
+import ru.practicum.shareit.item.service.ItemService;
 
 import java.util.List;
 
@@ -15,11 +16,11 @@ import java.util.List;
 @RequiredArgsConstructor
 public class ItemController {
     public static final String USER_ID_HEADER = "X-Sharer-User-Id";
-    private final ItemServiceDto itemService;
+    private final ItemService itemService;
 
     @PostMapping()
     public ItemDto add(@RequestHeader(USER_ID_HEADER) Long userId,
-            @Valid @RequestBody ItemDto itemDto) {
+                       @Valid @RequestBody ItemDto itemDto) {
         log.info("Получен запрос на создание пользователем {} вещи: {}", userId, itemDto);
 
         return itemService.add(userId, itemDto);
@@ -55,5 +56,14 @@ public class ItemController {
         log.info("Получен запрос на поиск вещей с текстом {}", text);
 
         return itemService.search(userId, text);
+    }
+
+    @PostMapping("/{itemId}/comment")
+    public CommentDto addComment(@PathVariable Long itemId,
+                                 @RequestHeader(USER_ID_HEADER) Long userId,
+                                 @RequestBody CommentDto commentDto) {
+        log.info("Получен запрос на добавление комментария к вещи с id = {} пользователем {}", itemId, userId);
+
+        return itemService.addComment(userId, itemId, commentDto);
     }
 }
