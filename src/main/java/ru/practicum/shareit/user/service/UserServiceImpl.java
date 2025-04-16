@@ -3,6 +3,7 @@ package ru.practicum.shareit.user.service;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import ru.practicum.shareit.exceptions.ErrorMessagesConst;
 import ru.practicum.shareit.exceptions.NotFoundException;
 import ru.practicum.shareit.user.UserMapper;
 import ru.practicum.shareit.user.dto.UserDto;
@@ -66,7 +67,7 @@ public class UserServiceImpl implements UserService {
 
     private User getUserById(Long id) {
         return userRepository.findById(id).orElseThrow(
-                () -> new NotFoundException("Пользователь c ID " + id + " не найден")
+                () -> new NotFoundException(String.format(ErrorMessagesConst.USER_NOT_FOUND, id))
         );
     }
 }

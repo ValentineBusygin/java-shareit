@@ -9,6 +9,7 @@ import ru.practicum.shareit.booking.dto.BookingOutDto;
 import ru.practicum.shareit.booking.model.Booking;
 import ru.practicum.shareit.booking.model.BookingState;
 import ru.practicum.shareit.booking.model.BookingStatus;
+import ru.practicum.shareit.exceptions.ErrorMessagesConst;
 import ru.practicum.shareit.exceptions.NotFoundException;
 import ru.practicum.shareit.exceptions.NotOwnerException;
 import ru.practicum.shareit.exceptions.ValidationException;
@@ -28,18 +29,14 @@ public class BookingServiceImpl implements BookingService {
     private final ItemRepository itemRepository;
     private final UserRepository userRepository;
 
-    private static final String ITEM_NOT_FOUND = "Предмет с id %d не найден";
-    private static final String USER_NOT_FOUND = "Пользователь с id %d не найден";
-    private static final String BOOKING_NOT_FOUND = "Бронирование с id %d не найдено";
-
     @Override
     @Transactional(rollbackFor = NotFoundException.class)
     public BookingOutDto create(BookingInDto bookingInDto, Long userId) {
         Item item = itemRepository.findById(bookingInDto.getItemId()).orElseThrow(
-                () -> new NotFoundException(String.format(ITEM_NOT_FOUND, bookingInDto.getItemId())));
+                () -> new NotFoundException(String.format(ErrorMessagesConst.ITEM_NOT_FOUND, bookingInDto.getItemId())));
 
         User user = userRepository.findById(userId).orElseThrow(
-                () -> new NotFoundException(String.format(USER_NOT_FOUND, userId)));
+                () -> new NotFoundException(String.format(ErrorMessagesConst.USER_NOT_FOUND, userId)));
 
         Booking booking = Booking.builder()
                 .start(bookingInDto.getStart())
@@ -60,10 +57,10 @@ public class BookingServiceImpl implements BookingService {
     @Transactional(rollbackFor = {NotFoundException.class, NotOwnerException.class})
     public BookingOutDto update(Long userId, Long bookingId, boolean approved) {
         userRepository.findById(userId).orElseThrow(
-                () -> new NotOwnerException(String.format(USER_NOT_FOUND, userId)));
+                () -> new NotOwnerException(String.format(ErrorMessagesConst.USER_NOT_FOUND, userId)));
 
         Booking booking = bookingRepository.findById(bookingId).orElseThrow(
-                () -> new NotFoundException(String.format(BOOKING_NOT_FOUND, bookingId)));
+                () -> new NotFoundException(String.format(ErrorMessagesConst.BOOKING_NOT_FOUND, bookingId)));
 
         if (!booking.getItem().getOwner().getId().equals(userId)) {
             throw new NotOwnerException("Пользователь не является владельцем предмета и не может управлять бронированием");
@@ -80,10 +77,10 @@ public class BookingServiceImpl implements BookingService {
     @Transactional(readOnly = true)
     public BookingOutDto getById(Long userId, Long bookingId) {
         userRepository.findById(userId).orElseThrow(
-                () -> new NotFoundException(String.format(USER_NOT_FOUND, userId)));
+                () -> new NotFoundException(String.format(ErrorMessagesConst.USER_NOT_FOUND, userId)));
 
         Booking booking = bookingRepository.findById(bookingId).orElseThrow(
-                () -> new NotFoundException(String.format(BOOKING_NOT_FOUND, bookingId)));
+                () -> new NotFoundException(String.format(ErrorMessagesConst.BOOKING_NOT_FOUND, bookingId)));
 
         if (!booking.getItem().getOwner().getId().equals(userId)
                 && !booking.getBooker().getId().equals(userId)) {
@@ -97,7 +94,7 @@ public class BookingServiceImpl implements BookingService {
     @Transactional(readOnly = true)
     public List<BookingOutDto> getAll0fUserByState(Long userId, BookingState state) {
         userRepository.findById(userId).orElseThrow(
-                () -> new NotFoundException(String.format(USER_NOT_FOUND, userId)));
+                () -> new NotFoundException(String.format(ErrorMessagesConst.USER_NOT_FOUND, userId)));
 
         List<Booking> bookings = switch (state) {
             case ALL -> bookingRepository.findByBookerIdOrderByStartDesc(userId);
@@ -119,7 +116,7 @@ public class BookingServiceImpl implements BookingService {
     @Transactional(readOnly = true)
     public List<BookingOutDto> getAll0fOwnerByState(Long userId, BookingState state) {
         userRepository.findById(userId).orElseThrow(
-                () -> new NotFoundException(String.format(USER_NOT_FOUND, userId)));
+                () -> new NotFoundException(String.format(ErrorMessagesConst.USER_NOT_FOUND, userId)));
 
         List<Booking> bookings = switch (state) {
             case ALL -> bookingRepository.findByItemOwnerIdOrderByStartDesc(userId);

@@ -6,6 +6,7 @@ import org.springframework.transaction.annotation.Transactional;
 import ru.practicum.shareit.booking.BookingMapper;
 import ru.practicum.shareit.booking.model.Booking;
 import ru.practicum.shareit.booking.service.BookingRepository;
+import ru.practicum.shareit.exceptions.ErrorMessagesConst;
 import ru.practicum.shareit.exceptions.NotFoundException;
 import ru.practicum.shareit.exceptions.NotOwnerException;
 import ru.practicum.shareit.item.CommentMapper;
@@ -29,13 +30,11 @@ public class ItemServiceImpl implements ItemService {
     private final BookingRepository bookingRepository;
     private final CommentRepository commentRepository;
 
-    private static final String USER_NOT_FOUND = "Пользователь с id %d не найден";
-
     @Override
     @Transactional(rollbackFor = NotFoundException.class)
     public ItemDto add(Long ownerId, ItemDto itemDto) {
         User owner = userRepository.findById(ownerId).orElseThrow(() ->
-                new NotFoundException(String.format(USER_NOT_FOUND, ownerId)));
+                new NotFoundException(String.format(ErrorMessagesConst.USER_NOT_FOUND, ownerId)));
 
         Item item = ItemMapper.toItem(itemDto);
 
@@ -48,7 +47,7 @@ public class ItemServiceImpl implements ItemService {
     @Transactional(rollbackFor = {NotFoundException.class, NotOwnerException.class})
     public ItemDto update(Long ownerId, Long itemId, ItemDto itemDto) {
         User owner = userRepository.findById(ownerId).orElseThrow(() ->
-                new NotFoundException(String.format(USER_NOT_FOUND, ownerId)));
+                new NotFoundException(String.format(ErrorMessagesConst.USER_NOT_FOUND, ownerId)));
         Optional<Item> oItem = itemRepository.findById(itemId);
         if (oItem.isPresent()) {
             Item itemInStorage = oItem.get();
@@ -83,7 +82,7 @@ public class ItemServiceImpl implements ItemService {
     @Transactional(readOnly = true)
     public ItemDto findById(Long userId, Long itemId) {
         userRepository.findById(userId).orElseThrow(() ->
-                new NotFoundException(String.format(USER_NOT_FOUND, userId)));
+                new NotFoundException(String.format(ErrorMessagesConst.USER_NOT_FOUND, userId)));
 
         Item item = itemRepository.findById(itemId).orElseThrow(() ->
                 new NotFoundException(
@@ -107,7 +106,7 @@ public class ItemServiceImpl implements ItemService {
     @Transactional(readOnly = true)
     public List<ItemDto> findAll(Long userId) {
         userRepository.findById(userId).orElseThrow(() ->
-                new NotFoundException(String.format(USER_NOT_FOUND, userId)));
+                new NotFoundException(String.format(ErrorMessagesConst.USER_NOT_FOUND, userId)));
 
         List<Item> items = itemRepository.findAllByOwnerId(userId);
 
@@ -133,7 +132,7 @@ public class ItemServiceImpl implements ItemService {
     @Transactional(readOnly = true)
     public List<ItemDto> search(Long userId, String text) {
         userRepository.findById(userId).orElseThrow(() ->
-                new NotFoundException(String.format(USER_NOT_FOUND, userId)));
+                new NotFoundException(String.format(ErrorMessagesConst.USER_NOT_FOUND, userId)));
 
         if (text.isBlank()) {
             return Collections.emptyList();
@@ -147,7 +146,7 @@ public class ItemServiceImpl implements ItemService {
     @Transactional(rollbackFor = {NotFoundException.class, NotOwnerException.class})
     public CommentDto addComment(Long userId, Long itemId, CommentDto commentDto) {
         User author = userRepository.findById(userId).orElseThrow(() ->
-                new NotFoundException(String.format(USER_NOT_FOUND, userId)));
+                new NotFoundException(String.format(ErrorMessagesConst.USER_NOT_FOUND, userId)));
 
         Item item = itemRepository.findById(itemId).orElseThrow(() ->
                 new NotFoundException(
