@@ -1,5 +1,6 @@
 package ru.practicum.shareit.item;
 
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
@@ -17,7 +18,7 @@ public class ItemController {
 
     @PostMapping()
     public ResponseEntity<Object> add(@RequestHeader(USER_ID_HEADER) Long userId,
-                                      @RequestBody ItemDto itemDto) {
+                                      @Valid @RequestBody ItemDto itemDto) {
         log.info("Получен запрос на создание пользователем {} вещи: {}", userId, itemDto);
 
         return itemClient.add(userId, itemDto);
@@ -26,7 +27,7 @@ public class ItemController {
     @PatchMapping("/{itemId}")
     public ResponseEntity<Object> update(@RequestHeader(USER_ID_HEADER) Long userId,
                                          @PathVariable Long itemId,
-                                         @RequestBody ItemDto itemDto) {
+                                         @Valid @RequestBody ItemDto itemDto) {
         log.info("Получен запрос на обновление вещи {} пользователем {}", itemId, userId);
 
         return itemClient.update(userId, itemId, itemDto);
@@ -58,7 +59,7 @@ public class ItemController {
     @PostMapping("/{itemId}/comment")
     public ResponseEntity<Object> addComment(@PathVariable Long itemId,
                                              @RequestHeader(USER_ID_HEADER) Long userId,
-                                             @RequestBody CommentDto commentDto) {
+                                             @Valid @RequestBody CommentDto commentDto) {
         log.info("Получен запрос на добавление комментария к вещи с id = {} пользователем {}", itemId, userId);
 
         return itemClient.addComment(userId, itemId, commentDto);
