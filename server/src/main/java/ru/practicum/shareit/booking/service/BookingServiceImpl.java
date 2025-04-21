@@ -98,8 +98,8 @@ public class BookingServiceImpl implements BookingService {
 
         List<Booking> bookings = switch (state) {
             case ALL -> bookingRepository.findByBookerIdOrderByStartDesc(userId);
-            case WAITING -> bookingRepository.findByBookerIdAndStatusOrderByStartDesc(userId, BookingState.WAITING);
-            case REJECTED -> bookingRepository.findByBookerIdAndStatusOrderByStartDesc(userId, BookingState.REJECTED);
+            case WAITING -> bookingRepository.findByBookerIdAndStatusOrderByStartDesc(userId, BookingStatus.WAITING);
+            case REJECTED -> bookingRepository.findByBookerIdAndStatusOrderByStartDesc(userId, BookingStatus.REJECTED);
             case PAST -> bookingRepository.findByBookerIdAndEndBeforeOrderByStartDesc(userId, LocalDateTime.now());
             case CURRENT ->
                     bookingRepository.findByBookerIdAndStartBeforeAndEndAfterOrderByStartDesc(userId, LocalDateTime.now(), LocalDateTime.now());
@@ -120,9 +120,9 @@ public class BookingServiceImpl implements BookingService {
 
         List<Booking> bookings = switch (state) {
             case ALL -> bookingRepository.findByItemOwnerIdOrderByStartDesc(userId);
-            case WAITING -> bookingRepository.findByItemOwnerIdAndStatusOrderByStartDesc(userId, BookingState.WAITING);
+            case WAITING -> bookingRepository.findByItemOwnerIdAndStatusOrderByStartDesc(userId, BookingStatus.WAITING);
             case REJECTED ->
-                    bookingRepository.findByItemOwnerIdAndStatusOrderByStartDesc(userId, BookingState.REJECTED);
+                    bookingRepository.findByItemOwnerIdAndStatusOrderByStartDesc(userId, BookingStatus.REJECTED);
             case PAST -> bookingRepository.findByItemOwnerIdAndEndBeforeOrderByStartDesc(userId, LocalDateTime.now());
             case CURRENT ->
                     bookingRepository.findByItemOwnerIdAndStartBeforeAndEndAfterOrderByStartDesc(userId, LocalDateTime.now(), LocalDateTime.now());
