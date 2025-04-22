@@ -9,14 +9,14 @@ import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabas
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.transaction.annotation.Transactional;
+import ru.practicum.shareit.exceptions.NotFoundException;
 import ru.practicum.shareit.request.dto.ItemRequestDto;
 import ru.practicum.shareit.request.dto.ItemRequestInDto;
 import ru.practicum.shareit.request.model.ItemRequest;
 import ru.practicum.shareit.user.UserController;
 import ru.practicum.shareit.user.dto.UserDto;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.*;
 
 @Transactional
 @ActiveProfiles("test")
@@ -53,6 +53,12 @@ public class RequestIntegrationTest {
     }
 
     @Test
+    void createRequestUserNotFoundErr() {
+        assertThrows(NotFoundException.class,
+                () -> itemRequestController.createRequest(0L, getItemRequestInDto(count)));
+    }
+
+    @Test
     void getRequestByIdOk() {
         UserDto userDto = getUserDto(count);
         userDto = userController.add(userDto);
@@ -67,6 +73,20 @@ public class RequestIntegrationTest {
         assertNotNull(itemRequestDto.getId());
         assertEquals(requestId, itemRequestDto.getId());
         assertEquals(itemRequestInDto.getDescription(), itemRequestDto.getDescription());
+    }
+
+    @Test
+    void getRequestByNotExistIdErr() {
+        UserDto userDto = getUserDto(count);
+        UserDto addedUserDto = userController.add(userDto);
+
+        assertThrows(NotFoundException.class,
+                () -> itemRequestController.getRequestById(addedUserDto.getId(), 0L));
+    }
+
+    @Test
+    void getAllRequestsOk() {
+        UserDto userDto = getUserDto(count);
     }
 
     @Test

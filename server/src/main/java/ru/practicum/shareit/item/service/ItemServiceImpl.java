@@ -114,11 +114,8 @@ public class ItemServiceImpl implements ItemService {
                 .map(item -> {
                     ItemDto itemDto = ItemMapper.toItemDto(item);
 
-                    if (item.getOwner().getId().equals(userId)) {
-                        List<Booking> bookings = bookingRepository.findByItemOwnerId(item.getOwner().getId());
-
-                        setLastAndNextBooking(itemDto, bookings);
-                    }
+                    List<Booking> bookings = bookingRepository.findByItemOwnerId(item.getOwner().getId());
+                    setLastAndNextBooking(itemDto, bookings);
 
                     List<Comment> comments = commentRepository.findAllByItemIdOrderByCreatedDesc(item.getId());
                     itemDto.setComments(comments.stream().map(CommentMapper::toCommentDto).toList());

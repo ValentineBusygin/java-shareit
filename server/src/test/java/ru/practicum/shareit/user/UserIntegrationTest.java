@@ -11,8 +11,11 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.transaction.annotation.Transactional;
+import ru.practicum.shareit.exceptions.NotFoundException;
 import ru.practicum.shareit.user.dto.UserDto;
 import ru.practicum.shareit.user.model.User;
+
+import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -27,11 +30,11 @@ public class UserIntegrationTest {
 
     private final EntityManager entityManager;
 
-    private static Long userCounter = 0L;
+    private static Long count = 0L;
 
     @Test
     void addUserOk() {
-        UserDto newUserDto = createUserDto(userCounter);
+        UserDto newUserDto = createUserDto(count);
 
         userController.add(newUserDto);
 
@@ -44,8 +47,8 @@ public class UserIntegrationTest {
     }
 
     @Test
-    void addUserEmailExist() {
-        UserDto newUserDto = createUserDto(userCounter);
+    void addUserEmailExistErr() {
+        UserDto newUserDto = createUserDto(count);
 
         userController.add(newUserDto);
 
@@ -54,7 +57,7 @@ public class UserIntegrationTest {
 
     @Test
     void findByIdOk() {
-        UserDto newUserDto = createUserDto(userCounter);
+        UserDto newUserDto = createUserDto(count);
 
         userController.add(newUserDto);
 
@@ -68,8 +71,67 @@ public class UserIntegrationTest {
     }
 
     @Test
+    void findByIdNotFoundErr() {
+        assertThrows(NotFoundException.class, () -> userController.findById(0L));
+    }
+
+    @Test
+    void findAllOk() {
+        UserDto newUserDto = createUserDto(count);
+        newUserDto = userController.add(newUserDto);
+
+        UserDto newUserDto2 = createUserDto(count);
+        newUserDto2 = userController.add(newUserDto2);
+
+        List<UserDto> users = userController.findAll();
+        assertEquals(users.size(), 2);
+    }
+
+    @Test
+    void updateUserOk() {
+        UserDto newUserDto = createUserDto(count);
+        newUserDto = userController.add(newUserDto);
+
+        TypedQuery<User> query = entityManager.createQuery("SELECT u FROM User u WHERE u.email = :email", User.class);
+        User newUser = query.setParameter("email", newUserDto.getEmail()).getSingleResult();
+
+        assertEquals(newUser.getId(), newUserDto.getId());
+        assertEquals(newUser.getName(), newUserDto.getName());
+        assertEquals(newUser.getEmail(), newUserDto.getEmail());
+
+        newUser.setName("UpdatedName");
+
+        userController.update(newUser.getId(), UserMapper.toUserDto(newUser));
+        User updatedUser = query.setParameter("email", newUserDto.getEmail()).getSingleResult();
+
+        assertEquals(updatedUser.getId(), newUser.getId());
+        assertEquals(updatedUser.getName(), newUser.getName());
+        assertEquals(updatedUser.getEmail(), newUser.getEmail());
+    }
+
+    @Test
+    void updateUserNoNameAndEmailOk() {
+        UserDto newUserDto = createUserDto(count);
+        newUserDto = userController.add(newUserDto);
+
+        Long userId = newUserDto.getId();
+        UserDto emptyUserDto = UserDto.builder()
+                .id(userId)
+                .build();
+
+        userController.update(userId, emptyUserDto);
+
+        TypedQuery<User> query = entityManager.createQuery("SELECT u FROM User u WHERE u.email = :email", User.class);
+        User newUser = query.setParameter("email", newUserDto.getEmail()).getSingleResult();
+
+        assertEquals(newUser.getId(), newUserDto.getId());
+        assertEquals(newUser.getName(), newUserDto.getName());
+        assertEquals(newUser.getEmail(), newUserDto.getEmail());
+    }
+
+    @Test
     void deleteUserOk() {
-        UserDto newUserDto = createUserDto(userCounter);
+        UserDto newUserDto = createUserDto(count);
 
         userController.add(newUserDto);
 
@@ -82,7 +144,7 @@ public class UserIntegrationTest {
     }
 
     private UserDto createUserDto(Long counter) {
-        userCounter++;
+        count++;
         return new UserDto(null, "Name-" + counter, "test-" + counter + "@mail.ru");
     }
 }
