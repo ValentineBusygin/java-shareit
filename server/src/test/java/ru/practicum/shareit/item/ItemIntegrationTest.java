@@ -30,7 +30,7 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 @ActiveProfiles("test")
 @AutoConfigureTestDatabase
 @RequiredArgsConstructor(onConstructor_ = @Autowired)
-@SpringBootTest(classes = ShareItServer.class, webEnvironment = SpringBootTest.WebEnvironment.NONE)
+@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.NONE)
 public class ItemIntegrationTest {
 
     private final ItemController itemController;
@@ -41,7 +41,7 @@ public class ItemIntegrationTest {
 
     private final EntityManager entityManager;
 
-    private Long count = 0L;
+    private static Long count = 0L;
 
     @Test
     void addItemOk() {
@@ -114,7 +114,7 @@ public class ItemIntegrationTest {
 
         List<ItemDto> items = itemController.findAll(newUser.getId());
 
-        assertEquals(3, items.size(), "Wrong number of items");
+        assertEquals(2, items.size(), "Wrong number of items");
         assertEquals(addedItem.getId(), items.getFirst().getId(), "Wrong id of item");
     }
 

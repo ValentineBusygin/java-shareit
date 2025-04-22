@@ -23,7 +23,7 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 @ActiveProfiles("test")
 @AutoConfigureTestDatabase
 @RequiredArgsConstructor(onConstructor_ = @Autowired)
-@SpringBootTest(classes = ShareItServer.class, webEnvironment = SpringBootTest.WebEnvironment.NONE)
+@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.NONE)
 public class RequestIntegrationTest {
 
     private final UserController userController;
@@ -32,7 +32,7 @@ public class RequestIntegrationTest {
 
     private final EntityManager entityManager;
 
-    private Long count = 0L;
+    private static Long count = 0L;
 
     @Test
     void createRequestOk() {

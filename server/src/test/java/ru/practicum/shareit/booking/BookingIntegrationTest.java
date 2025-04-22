@@ -42,7 +42,7 @@ public class BookingIntegrationTest {
 
     private final EntityManager entityManager;
 
-    private Long count = 0L;
+    private static Long count = 0L;
 
     @Test
     void createBookingOk() {

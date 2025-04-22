@@ -21,14 +21,14 @@ import static org.junit.jupiter.api.Assertions.*;
 @ActiveProfiles("test")
 @AutoConfigureTestDatabase
 @RequiredArgsConstructor(onConstructor_ = @Autowired)
-@SpringBootTest(classes = ShareItServer.class, webEnvironment = SpringBootTest.WebEnvironment.NONE)
+@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.NONE)
 public class UserIntegrationTest {
 
     private final UserController userController;
 
     private final EntityManager entityManager;
 
-    private Long userCounter = 0L;
+    private static Long userCounter = 0L;
 
     @Test
     void addUserOk() {
