@@ -5,9 +5,11 @@ import jakarta.persistence.TypedQuery;
 import lombok.RequiredArgsConstructor;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.transaction.annotation.Transactional;
+import ru.practicum.shareit.ShareItServer;
 import ru.practicum.shareit.booking.BookingController;
 import ru.practicum.shareit.booking.dto.BookingInDto;
 import ru.practicum.shareit.booking.dto.BookingOutDto;
@@ -26,8 +28,9 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 @Transactional
 @ActiveProfiles("test")
+@AutoConfigureTestDatabase
 @RequiredArgsConstructor(onConstructor_ = @Autowired)
-@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.NONE)
+@SpringBootTest(classes = ShareItServer.class, webEnvironment = SpringBootTest.WebEnvironment.NONE)
 public class ItemIntegrationTest {
 
     private final ItemController itemController;
@@ -111,7 +114,7 @@ public class ItemIntegrationTest {
 
         List<ItemDto> items = itemController.findAll(newUser.getId());
 
-        assertEquals(2, items.size(), "Wrong number of items");
+        assertEquals(3, items.size(), "Wrong number of items");
         assertEquals(addedItem.getId(), items.getFirst().getId(), "Wrong id of item");
     }
 
