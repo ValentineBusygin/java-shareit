@@ -1,18 +1,19 @@
 package ru.practicum.shareit.request;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
-import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
+import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
+import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
-import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import ru.practicum.shareit.request.dto.ItemRequestDto;
 import ru.practicum.shareit.request.dto.ItemRequestInDto;
-import ru.practicum.shareit.request.service.ItemRequestServiceImpl;
+import ru.practicum.shareit.request.service.ItemRequestService;
 
 import java.util.List;
 
@@ -24,12 +25,17 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @ExtendWith(MockitoExtension.class)
+@WebMvcTest({ItemRequestController.class})
+@AutoConfigureMockMvc
 public class RequestControllerTest {
+
+    @Autowired
     private MockMvc mockMvc;
+
     private final ObjectMapper objectMapper = new ObjectMapper();
 
-    @Mock
-    private ItemRequestServiceImpl requestService;
+    @MockBean
+    private ItemRequestService requestService;
 
     @InjectMocks
     private ItemRequestController requestController;
@@ -37,13 +43,6 @@ public class RequestControllerTest {
     private final ItemRequestInDto requestInDto = new ItemRequestInDto("Need a drill");
 
     private final ItemRequestDto requestDto = new ItemRequestDto(1L, "Need a drill", null, null);
-
-    @BeforeEach
-    void setup() {
-        mockMvc = MockMvcBuilders
-                .standaloneSetup(requestController)
-                .build();
-    }
 
     @Test
     void createRequest() throws Exception {

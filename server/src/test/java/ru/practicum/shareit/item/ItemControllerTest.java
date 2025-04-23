@@ -5,14 +5,16 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
-import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
+import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
+import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
-import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import ru.practicum.shareit.item.dto.CommentDto;
 import ru.practicum.shareit.item.dto.ItemDto;
-import ru.practicum.shareit.item.service.ItemServiceImpl;
+import ru.practicum.shareit.item.service.ItemService;
 
 import java.util.List;
 
@@ -24,17 +26,20 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @ExtendWith(MockitoExtension.class)
+@WebMvcTest({ItemController.class})
+@AutoConfigureMockMvc
 public class ItemControllerTest {
 
-    @Mock
-    private ItemServiceImpl itemService;
+    @Autowired
+    private MockMvc mockMvc;
+
+    @MockBean
+    private ItemService itemService;
 
     @InjectMocks
     private ItemController itemController;
 
     private final ObjectMapper objectMapper = new ObjectMapper();
-
-    private MockMvc mockMvc;
 
     private ItemDto itemDto;
 
@@ -42,10 +47,6 @@ public class ItemControllerTest {
 
     @BeforeEach
     void setup() {
-        mockMvc = MockMvcBuilders
-                .standaloneSetup(itemController)
-                .build();
-
         itemDto = ItemDto.builder()
                 .id(1L)
                 .name("item")

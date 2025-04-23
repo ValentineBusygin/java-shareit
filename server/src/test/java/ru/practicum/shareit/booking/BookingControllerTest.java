@@ -2,19 +2,20 @@ package ru.practicum.shareit.booking;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.BeforeAll;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
-import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
+import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
+import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
-import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import ru.practicum.shareit.booking.dto.BookingInDto;
 import ru.practicum.shareit.booking.dto.BookingOutDto;
 import ru.practicum.shareit.booking.model.BookingStatus;
-import ru.practicum.shareit.booking.service.BookingServiceImpl;
+import ru.practicum.shareit.booking.service.BookingService;
 import ru.practicum.shareit.item.dto.ItemDto;
 import ru.practicum.shareit.user.dto.UserDto;
 
@@ -29,13 +30,17 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @ExtendWith(MockitoExtension.class)
+@WebMvcTest({BookingController.class})
+@AutoConfigureMockMvc
 public class BookingControllerTest {
 
+    @Autowired
     private MockMvc mockMvc;
+
     private static final ObjectMapper objectMapper = new ObjectMapper();
 
-    @Mock
-    private BookingServiceImpl bookingService;
+    @MockBean
+    private BookingService bookingService;
 
     @InjectMocks
     private BookingController bookingController;
@@ -71,13 +76,6 @@ public class BookingControllerTest {
     @BeforeAll
     static void init() {
         objectMapper.findAndRegisterModules();
-    }
-
-    @BeforeEach
-    void setup() {
-        mockMvc = MockMvcBuilders
-                .standaloneSetup(bookingController)
-                .build();
     }
 
     @Test
